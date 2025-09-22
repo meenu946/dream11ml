@@ -1,88 +1,111 @@
 import streamlit as st
+import pandas as pd
 import requests
 import json
-import pandas as pd
 
+# Define the FastAPI endpoint URL
+API_URL = "http://127.0.0.1:8000/predict_and_optimize/"
+
+# --- Page Configuration ---
 st.set_page_config(
-    page_title="Dream11 Fantasy Predictor",
+    page_title="Dream11 Fantasy Cricket Predictor",
+    page_icon="🏏",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # --- App Title and Description ---
-st.title('🏏 Dream11 Fantasy Cricket Predictor')
-st.markdown("---")
-st.subheader("Powered by an MLOps Pipeline")
-st.markdown("""
-This application uses a machine learning model to predict player performance and an
-optimization engine to recommend the best possible fantasy cricket team under Dream11 constraints.
-""")
+st.title("Dream11 Fantasy Cricket Predictor")
+st.markdown("Optimize your Dream11 team with the power of Machine Learning and Integer Linear Programming.")
 
-# --- User Input Form ---
-st.header("Player Data Input")
-st.markdown("Enter player details for two teams to get an optimized team recommendation.")
+# --- Sidebar for Player Selection ---
+st.sidebar.header("Player Selection")
+st.sidebar.markdown("Add players to your team based on their names, teams, roles, and credits.")
 
-# Let's provide a pre-filled example for demonstration purposes
-example_players = [
-    {"player_name": "Rohit Sharma", "team": "MI", "role": "Batsman", "credit": 9.5},
-    {"player_name": "Jasprit Bumrah", "team": "MI", "role": "Bowler", "credit": 9.0},
-    {"player_name": "Hardik Pandya", "team": "MI", "role": "All-rounder", "credit": 10.0},
-    {"player_name": "Suryakumar Yadav", "team": "MI", "role": "Batsman", "credit": 9.0},
-    {"player_name": "Ishan Kishan", "team": "MI", "role": "Wicket-keeper", "credit": 8.5},
-    {"player_name": "Virat Kohli", "team": "RCB", "role": "Batsman", "credit": 10.5},
-    {"player_name": "Glenn Maxwell", "team": "RCB", "role": "All-rounder", "credit": 9.0},
-    {"player_name": "Faf du Plessis", "team": "RCB", "role": "Batsman", "credit": 9.5},
-    {"player_name": "Mohammed Siraj", "team": "RCB", "role": "Bowler", "credit": 8.5},
-    {"player_name": "Dinesh Karthik", "team": "RCB", "role": "Wicket-keeper", "credit": 8.0},
-    {"player_name": "Devdutt Padikkal", "team": "RCB", "role": "Batsman", "credit": 8.5},
-    {"player_name": "Adam Zampa", "team": "RCB", "role": "Bowler", "credit": 7.5},
-    {"player_name": "Kyle Jamieson", "team": "RCB", "role": "Bowler", "credit": 8.0},
-    {"player_name": "Yuzvendra Chahal", "team": "RCB", "role": "Bowler", "credit": 8.5},
-    {"player_name": "Kieron Pollard", "team": "MI", "role": "All-rounder", "credit": 9.5},
-    {"player_name": "Trent Boult", "team": "MI", "role": "Bowler", "credit": 8.5},
-    {"player_name": "Krunal Pandya", "team": "MI", "role": "All-rounder", "credit": 8.0},
-    {"player_name": "Quinton de Kock", "team": "MI", "role": "Wicket-keeper", "credit": 9.0},
-]
-# Create a DataFrame from the example players
-players_df = pd.DataFrame(example_players)
-edited_df = st.data_editor(players_df, num_rows="dynamic", use_container_width=True)
+# Initialize player list in session state
+if 'players' not in st.session_state:
+    st.session_state.players = []
 
-# --- Button to Trigger Prediction ---
-if st.button('Generate Optimized Team', help="Click to send data to the backend API and get the best team."):
-    if len(edited_df) < 11:
-        st.error("Please enter at least 11 players to generate a team.")
+player_name = st.sidebar.text_input("Player Name")
+player_team = st.sidebar.selectbox("Team", ["Team1", "Team2"])
+player_role = st.sidebar.selectbox("Role", ["Batsman", "Bowler", "All-rounder", "Wicket-keeper"])
+player_credit = st.sidebar.slider("Credits", 8.0, 12.0, 9.0, 0.5)
+
+if st.sidebar.button("Add Player"):
+    if player_name:
+        st.session_state.players.append({
+            "player_name": player_name,
+            "team": player_team,
+            "role": player_role,
+            "credit": player_credit,
+        })
     else:
-        with st.spinner('Generating team recommendation...'):
-            try:
-                # Convert the edited DataFrame to a list of dicts for the API call
-                player_data = edited_df.to_dict('records')
+        st.sidebar.warning("Please enter a player name.")
+
+if st.sidebar.button("Clear Team"):
+    st.session_state.players = []
+
+# --- Main Page Content ---
+
+if st.button("Generate Dream11 Team"):
+    if not st.session_state.players:
+        st.warning("Please add at least one player to generate a team.")
+    else:
+        st.info("Generating your optimized team...")
+        
+        # Prepare data for the API call
+        player_data = st.session_state.players
+        
+        # Make the API call
+        try:
+            response = requests.post(
+                API_URL, 
+                data=json.dumps(player_data), 
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            # Check for successful response
+            if response.status_code == 200:
+                result = response.json()
                 
-                # Make the POST request to the FastAPI backend
-                response = requests.post(
-                    "http://localhost:8000/predict_and_optimize/", # Adjust URL if deploying
-                    data=json.dumps(player_data),
-                    headers={"Content-Type": "application/json"}
-                )
-                
-                if response.status_code == 200:
-                    result = response.json()
-                    
+                # Check for an error message in the response body
+                if "error" in result:
+                    st.error(f"An error occurred: {result['error']}")
+                else:
                     st.success("🎉 Team successfully generated!")
                     
+                    # Display the optimized team
                     st.header("Recommended Dream11 Team")
-                    st.dataframe(pd.DataFrame(result['selected_players']), use_container_width=True)
+                    selected_players_df = pd.DataFrame(result["selected_players"])
                     
-                    st.markdown("---")
-                    st.subheader("Summary")
-                    st.write(f"**Total Predicted Points:** {result['total_points']:.2f}")
-                    st.write(f"**Total Credits Used:** {result['total_credits']:.2f}")
+                    # Reorder and format columns for better display
+                    display_cols = ['player_name', 'team', 'role', 'credit', 'predicted_points']
+                    selected_players_df = selected_players_df[display_cols].rename(columns={
+                        'player_name': 'Player',
+                        'team': 'Team',
+                        'role': 'Role',
+                        'credit': 'Credits',
+                        'predicted_points': 'Predicted Points'
+                    })
                     
-                else:
-                    st.error(f"Error from backend: {response.status_code} - {response.text}")
+                    st.dataframe(selected_players_df, use_container_width=True)
                     
-            except requests.exceptions.ConnectionError:
-                st.error("Connection error. Is the FastAPI backend running?")
-            except json.JSONDecodeError:
-                st.error("Invalid JSON response from the backend.")
-            except Exception as e:
-                st.error(f"An unexpected error occurred: {e}")
+                    # Display total credits and points
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric(label="Total Credits Used", value=f"₹{result['total_credits']:.2f}")
+                    with col2:
+                        st.metric(label="Total Predicted Points", value=f"{result['total_points']:.2f}")
+                        
+            else:
+                st.error(f"An unexpected error occurred from the backend: {response.status_code} - {response.text}")
+                
+        except requests.exceptions.ConnectionError:
+            st.error("Could not connect to the backend API. Please make sure the FastAPI server is running.")
+            st.code("uvicorn src.api.main:app --reload")
+
+# Display current player list
+if st.session_state.players:
+    st.subheader("Your Current Player Pool")
+    players_df = pd.DataFrame(st.session_state.players)
+    st.dataframe(players_df, use_container_width=True)

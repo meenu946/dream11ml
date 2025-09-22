@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Users/Admin/Desktop/dream11ml/notebooks/mlruns/193820164966890080/91f567b73fa14278b7d72053604c154e/artifacts
+end_time: 1758527775012
+entry_point_name: ''
+experiment_id: '193820164966890080'
+lifecycle_stage: active
+run_id: 91f567b73fa14278b7d72053604c154e
+run_name: Random_Forest_Regressor_Model
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758527763284
+status: 3
+tags: []
+user_id: Admin
