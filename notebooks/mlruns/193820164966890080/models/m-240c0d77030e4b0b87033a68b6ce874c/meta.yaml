@@ -1,0 +1,10 @@
+artifact_location: file:///c:/Users/Admin/Desktop/dream11ml/notebooks/mlruns/193820164966890080/models/m-240c0d77030e4b0b87033a68b6ce874c/artifacts
+creation_timestamp: 1758526348864
+experiment_id: '193820164966890080'
+last_updated_timestamp: 1758526362167
+model_id: m-240c0d77030e4b0b87033a68b6ce874c
+model_type: null
+name: random-forest-model
+source_run_id: 921d01755a6d48b3ab96a0900e2b7371
+status: 2
+status_message: null

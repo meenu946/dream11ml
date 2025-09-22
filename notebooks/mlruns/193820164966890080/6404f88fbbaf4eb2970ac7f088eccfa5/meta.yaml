@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/Users/Admin/Desktop/dream11ml/notebooks/mlruns/193820164966890080/6404f88fbbaf4eb2970ac7f088eccfa5/artifacts
+end_time: 1758526308210
+entry_point_name: ''
+experiment_id: '193820164966890080'
+lifecycle_stage: active
+run_id: 6404f88fbbaf4eb2970ac7f088eccfa5
+run_name: Linear_Regression_Model
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758526297073
+status: 3
+tags: []
+user_id: Admin

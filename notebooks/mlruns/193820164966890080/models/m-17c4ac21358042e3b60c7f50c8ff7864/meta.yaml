@@ -1,0 +1,10 @@
+artifact_location: file:///c:/Users/Admin/Desktop/dream11ml/notebooks/mlruns/193820164966890080/models/m-17c4ac21358042e3b60c7f50c8ff7864/artifacts
+creation_timestamp: 1758525956059
+experiment_id: '193820164966890080'
+last_updated_timestamp: 1758525965787
+model_id: m-17c4ac21358042e3b60c7f50c8ff7864
+model_type: null
+name: linear-regression-model
+source_run_id: 3f01a40475bf41f2a14378b3363b9192
+status: 2
+status_message: null
