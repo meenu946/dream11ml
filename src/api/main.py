@@ -11,6 +11,7 @@ from sklearn.preprocessing import StandardScaler
 
 # --- MLOps Setup ---
 # Use absolute paths to ensure the files are found regardless of the working directory
+# --- Paths ---
 MODEL_PATH = r"C:\Users\Admin\Desktop\dream11ml\notebooks\src\models\best_model.pkl"
 PROCESSED_DATA_PATH = r"C:\Users\Admin\Desktop\dream11ml\data\processed\processed_data.csv"
 
